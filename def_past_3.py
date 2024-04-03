@@ -5,7 +5,7 @@ def past_3(city,state):
     base_url = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/"
     complete_url = f"{base_url}{city},{state}/last3days?unitGroup=us&key={VISUAL_CROSSING_API_KEY}"
 
-    print(complete_url)
+    # print(complete_url)
 
     response = requests.get(complete_url)
 
@@ -14,7 +14,7 @@ def past_3(city,state):
         data = response.json()
         data = np.array(data)
       
-        return(data) # returning everything, please let me know what do you like to display
+        return(data) # returning everything, please let me know what you like to display
 
     else:
         print("Error:", response.status_code)
