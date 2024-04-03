@@ -1,0 +1,79 @@
+#website that prettifies JSON
+
+https://jsonformatter.org/json-pretty-print
+
+
+API Keys for OpenWeather API
+1 
+4dd536d0342a99c5a80cb2067d4718bd - Aladdin
+2
+3bb060fc4c27204a5eb988afb0bf1101
+3
+4512afe5f61b96b78f1c3eab88b8f6a6
+
+
+4
+C9a13d614192d123ada095be3e0c6eb7 - Mayk
+
+
+5
+29b6f476ddbbec25a80a7d86634f3399 - David
+
+
+
+Results:
+# sample results and fields that will return:
+{"coord":{"lon":-84.388,"lat":33.749},"weather":[{"id":800,"main":"Clear","description":"clear sky","icon":"01n"}],"base":"stations","main":{"temp":287.88,"feels_like":286.3,"temp_min":286.36,"temp_max":289.18,"pressure":1018,"humidity":34},"visibility":10000,"wind":{"speed":4.12,"deg":330},"clouds":{"all":0},"dt":1711673290,"sys":{"type":2,"id":2006620,"country":"US","sunrise":1711625377,"sunset":1711670101},"timezone":-14400,"id":4180439,"name":"Atlanta","cod":200}
+
+
+
+
+
+
+
+API Output:
+{
+"coord":{
+"Lon":-84.388,  < – these might be used for the air quality
+"Lat":33.749
+},
+"Weather":[
+{
+"Id":800,
+"main":"Clear",
+"Description":"clearsky",
+"Icon":"01n"
+}
+],
+"base":"stations",
+"Main":{
+"Temp":287.88,
+"Feels_like":286.3,
+"Temp_min":286.36,
+"Temp_max":289.18,
+"Pressure":1018,
+"Humidity":34
+},
+"Visibility":10000,
+"Wind":{
+"Speed":4.12,
+"Deg":330
+},
+"Clouds":{
+"All":0
+},
+"Dt":1711673290, # time stamp we can parse
+"Sys":{
+"Type":2,"id":2006620,
+"country":"US",
+"Sunrise":1711625377,
+"Sunset":1711670101
+},
+"Timezone":-14400,
+"Id":4180439,
+"name":"Atlanta",
+"Cod":200
+}
+
+API Key for Visual Crossing
+9LMZ7SVJRRQN9QQ4XCHK46VBN
