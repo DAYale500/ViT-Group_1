@@ -172,7 +172,6 @@ class WeatherApp:
 
         data = self.get_data(complete_url)
         if data:
-            data = np.array(data)
             print("Past 3 days weather data:", data)
 
             window = tk.Toplevel()
@@ -180,17 +179,17 @@ class WeatherApp:
 
             print(data["days"])
 
-            for day_data in data["days"][0]:
+            for day_data in data["days"][1:]:
                 date_label = ttk.Label(window, text=f"Date: {day_data['datetime']}", font=("Arial", 12, "bold"))
                 date_label.pack()
 
-                weather_label = ttk.Label(window, text=f"Weather: {day_data['weather']}", font=("Arial", 10))
+                weather_label = ttk.Label(window, text=f"Weather: {day_data['conditions']}", font=("Arial", 10))
                 weather_label.pack()
 
                 temp_label = ttk.Label(window, text=f"Temperature: {day_data['temp']}°F", font=("Arial", 10))
                 temp_label.pack()
 
-                feels_like_label = ttk.Label(window, text=f"Feels Like: {day_data['feels_like']}°F", font=("Arial", 10))
+                feels_like_label = ttk.Label(window, text=f"Feels Like: {day_data['feelslike']}°F", font=("Arial", 10))
                 feels_like_label.pack()
 
                 humidity_label = ttk.Label(window, text=f"Humidity: {day_data['humidity']}%", font=("Arial", 10))
@@ -207,7 +206,7 @@ class WeatherApp:
 
         else:
             self.popupmsg("Error", "Failed to fetch data from API.")
-        
+
     def create_air_quality(self, city_name):
         # Get data from API using the WeatherApp's get_data method
         api_url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{city_name}?unitGroup=metric&key=9LMZ7SVJRRQN9QQ4XCHK46VBN&contentType=json&elements=datetime,pm1,pm2p5,pm10,o3,no2,so2,co,aqius,aqieur"
@@ -279,6 +278,7 @@ class WeatherApp:
                 lon = str(round(geocode_data[0]["lon"], 5))
                 forecast_url = f"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={api_key}&units={self.temperature_unit.get()}"
                 forecast_data = self.get_data(forecast_url)
+                print(forecast_data)
                 if forecast_data:
                     self.display_5_day_forecast(forecast_data, city_name)
                 else:
@@ -429,28 +429,23 @@ class WeatherApp:
     
         forecast_data = {}
     
-        for forecast in data["list"]:
+        for forecast in data["list"][1:]:
             forecast_date = datetime.fromtimestamp(forecast["dt"]).strftime("%Y-%m-%d")
             if forecast_date not in forecast_data:
                 forecast_data[forecast_date] = forecast
-    
-        frame_left = tk.Frame(window)
-        frame_left.pack(side="left", padx=10, pady=10)
-        frame_right = tk.Frame(window)
-        frame_right.pack(side="right", padx=10, pady=10)
     
         for date, data in forecast_data.items():
             date_obj = datetime.strptime(date, "%Y-%m-%d")
             day_of_week = date_obj.strftime("%A")
             formatted_date = f"{day_of_week}, {date_obj.strftime('%B %d, %Y')}"
     
-            forecast_label = ttk.Label(frame_left, text=f"Date: {formatted_date}", font=("Arial", 12, "bold"))
+            forecast_label = ttk.Label(window, text=f"Date: {formatted_date}", font=("Arial", 12, "bold"))
             forecast_label.pack()
     
-            weather_label = ttk.Label(frame_left, text="Weather:", font=("Arial", 10, "bold"))
+            weather_label = ttk.Label(window, text="Weather:", font=("Arial", 10, "bold"))
             weather_label.pack()
             weather_text = data["weather"][0]["description"]
-            weather_data = ttk.Entry(frame_left, width=30, font=("Arial", 10), justify="center")
+            weather_data = ttk.Entry(window, width=30, font=("Arial", 10), justify="center")
             weather_data.insert(0, weather_text)
             weather_data.config(state="readonly")
             weather_data.pack()
@@ -461,22 +456,20 @@ class WeatherApp:
     
             if self.temperature_unit.get() == "imperial":
                 wind_speed_unit = "mph"
-                wind_speed = f"Wind Speed: {data['wind']['speed']} {wind_speed_unit}"
+                wind_speed = f"Wind Speed & Direction: {data['wind']['speed']} {wind_speed_unit}"
             else:
                 wind_speed_unit = "m/s"
-                wind_speed = f"Wind Speed: {data['wind']['speed']} {wind_speed_unit}"
+                wind_speed = f"Wind Speed & Direction: {data['wind']['speed']} {wind_speed_unit}"
     
             wind_deg = data['wind']['deg']
             wind_dir_text = self.get_cardinal_direction(wind_deg)
     
-            temp_data = ttk.Label(frame_left, text=temp_text, font=("Arial", 10))
+            temp_data = ttk.Label(window, text=temp_text, font=("Arial", 10))
             temp_data.pack()
-            humidity_data = ttk.Label(frame_left, text=humidity_text, font=("Arial", 10))
+            humidity_data = ttk.Label(window, text=humidity_text, font=("Arial", 10))
             humidity_data.pack()
-            wind_speed_data = ttk.Label(frame_right, text=wind_speed, font=("Arial", 10))
+            wind_speed_data = ttk.Label(window, text=f'{wind_speed} {wind_dir_text}', font=("Arial", 10))
             wind_speed_data.pack()
-            wind_dir_data = ttk.Label(frame_right, text=f"Wind Direction: {wind_dir_text}", font=("Arial", 10))
-            wind_dir_data.pack()
 
     def popupmsg(self, title, msg):
         popup = tk.Toplevel()
