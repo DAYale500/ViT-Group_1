@@ -12,6 +12,11 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import numpy as np
 
+# Replace 'YOUR_API_KEY' with your actual OpenWeatherMap API key
+api_key = "29b6f476ddbbec25a80a7d86634f3399"
+
+api_key_visualcrossing = "9LMZ7SVJRRQN9QQ4XCHK46VBN"
+
 # Mapping of US state abbreviations to full names
 us_states = {
     "AL": "Alabama",
@@ -66,12 +71,8 @@ us_states = {
     "WY": "Wyoming"
 }
 
-# Replace 'YOUR_API_KEY' with your actual OpenWeatherMap API key
-api_key = "29b6f476ddbbec25a80a7d86634f3399"
-
-api_key_visualcrossing = "9LMZ7SVJRRQN9QQ4XCHK46VBN"
-
 class WeatherApp:
+
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Weather App")
@@ -98,6 +99,26 @@ class WeatherApp:
 
         # Display the quote of the day and international holiday in the GUI
         self.display_quote()
+
+        # Dictionary containing weather icons represented as text
+        self.weather_icons = {
+            "Clear": "☀️",
+            "Clouds": "☁️",
+            "Rain": "🌧️",
+            "Snow": "❄️",
+            "Thunderstorm": "⛈️",
+            "Mist": "🌫️",
+            "Haze": "🌫️",
+            "Fog": "🌫️",
+            "Smoke": "🌫️",
+            "Drizzle": "🌦️",
+            "Sleet": "🌨️",
+            "Tornado": "🌪️",
+            "Sunny": "🌞",
+            "Partly Cloudy": "⛅",
+            "Mostly Cloudy": "🌥️",
+            "Overcast": "🌥️"
+        }
 
         # Start the GUI event loop
         self.init_page()
@@ -215,6 +236,11 @@ class WeatherApp:
         if data:
             df = pd.DataFrame(data["days"])
 
+            # Define AQI ranges and corresponding colors
+            aqi_ranges = [(0, 50), (51, 100), (101, 150), (151, 200), (201, 300), (301, float('inf'))]
+            aqi_colors = ['green', 'yellow', 'orange', 'red', 'purple', 'maroon']
+            aqi_labels = ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous']
+
             # Create a new window for the plot
             plot_window = tk.Toplevel(self.window)
             plot_window.title(f"Air Quality Index (AQI) in {city_name}")
@@ -222,13 +248,30 @@ class WeatherApp:
 
             # Create a Matplotlib figure
             fig, ax = plt.subplots(figsize=(8, 6))
+
+            # Iterate over AQI ranges and plot corresponding background colors
+            for i, (start, end) in enumerate(aqi_ranges):
+                ax.axhspan(start, end, color=aqi_colors[i], alpha=0.3, label=aqi_labels[i])
+
+            # Plot AQI data
             ax.plot(df["datetime"], df["aqius"], label="AQI (US)")
+
+            # Set labels and title
             ax.set_xlabel("Date")
             ax.set_ylabel("AQI")
             ax.set_title(f"Air Quality Index (AQI) in {city_name}")
             ax.legend()
             ax.grid(True)
             fig.tight_layout()
+
+            # Define hover functionality to display descriptions
+            def hover(event):
+                for i, (start, end) in enumerate(aqi_ranges):
+                    if start <= event.ydata <= end:
+                        text = f'{aqi_labels[i]}: {start} to {end}'
+                        tooltip = ax.text(event.xdata, event.ydata, text, bbox=dict(facecolor=aqi_colors[i], alpha=0.5))
+
+            fig.canvas.mpl_connect('motion_notify_event', hover)
 
             # Embed the Matplotlib plot into Tkinter window
             canvas = FigureCanvasTkAgg(fig, master=plot_window)
@@ -310,7 +353,14 @@ class WeatherApp:
         window = tk.Toplevel()
         window.title(f"Current Weather in {city_name}")
 
-        weather_condition = data["weather"][0]["main"].lower()  # Ensure lowercase for matching
+        weather_condition = data["weather"][0]["main"]  # Ensure lowercase for matching
+
+        # Get weather icon text
+        weather_icon_text = self.weather_icons.get(weather_condition, self.weather_icons[weather_condition])
+
+        # Display weather icon as label
+        weather_icon_label = ttk.Label(window, text=weather_icon_text, font=("Arial", 40))
+        weather_icon_label.pack()
        
         weather_label = ttk.Label(window, text="Weather:", font=("Arial", 12, "bold"), justify="center")
         weather_label.pack()
