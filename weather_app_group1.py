@@ -77,7 +77,7 @@ class WeatherApp:
         self.window = tk.Tk()
         self.window.title("Weather App")
         self.window.geometry("600x400")
-        self.window.configure(bg='yellow')
+        self.window.configure(bg='white')
 
         self.location_var = tk.StringVar()
         self.temperature_unit = tk.StringVar(value="metric")
@@ -192,16 +192,21 @@ class WeatherApp:
         print(complete_url)
 
         data = self.get_data(complete_url)
+        print(data)
+        
         if data:
             print("Past 3 days weather data:", data)
 
             window = tk.Toplevel()
-            window.title(f"Past 3 Days Weather in {city.replace('%20', ' ')}, {state}")
+            window.title(f"Past 3 Days Weather in {data['resolvedAddress']}")
 
             print(data["days"])
 
+            advisory_label = ttk.Label(window, text="Note: Check window title. If it is not the correct location, please specify your search further.", font=("Arial", 10))
+            advisory_label.pack()
+
             for day_data in data["days"][1:]:
-                date_label = ttk.Label(window, text=f"Date: {day_data['datetime']}", font=("Arial", 12, "bold"))
+                date_label = ttk.Label(window, text=f"Date: {datetime.fromtimestamp(day_data['datetimeEpoch']).strftime('%B %d, %Y')}", font=("Arial", 12, "bold"))
                 date_label.pack()
 
                 weather_label = ttk.Label(window, text=f"Weather: {day_data['conditions']}", font=("Arial", 10))
@@ -232,6 +237,7 @@ class WeatherApp:
         # Get data from API using the WeatherApp's get_data method
         api_url = f"https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/{city_name}?unitGroup=metric&key=9LMZ7SVJRRQN9QQ4XCHK46VBN&contentType=json&elements=datetime,pm1,pm2p5,pm10,o3,no2,so2,co,aqius,aqieur"
         data = self.get_data(api_url)
+        print(data)
 
         if data:
             df = pd.DataFrame(data["days"])
@@ -243,7 +249,7 @@ class WeatherApp:
 
             # Create a new window for the plot
             plot_window = tk.Toplevel(self.window)
-            plot_window.title(f"Air Quality Index (AQI) in {city_name}")
+            plot_window.title(f"Air Quality Index (AQI) in {data['resolvedAddress']}")
             plot_window.geometry("800x600")
 
             # Create a Matplotlib figure
@@ -254,12 +260,12 @@ class WeatherApp:
                 ax.axhspan(start, end, color=aqi_colors[i], alpha=0.3, label=aqi_labels[i])
 
             # Plot AQI data
-            ax.plot(df["datetime"], df["aqius"], label="AQI (US)")
+            ax.plot(df["datetime"], df["aqius"], label="AQI (US)", linewidth=6)
 
             # Set labels and title
             ax.set_xlabel("Date")
             ax.set_ylabel("AQI")
-            ax.set_title(f"Air Quality Index (AQI) in {city_name}")
+            ax.set_title(f"Air Quality Index (AQI) in {data['resolvedAddress']}")
             ax.legend()
             ax.grid(True)
             fig.tight_layout()
@@ -301,12 +307,13 @@ class WeatherApp:
                 lon = str(round(geocode_data[0]["lon"], 5))
                 current_weather_url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units={self.temperature_unit.get()}"
                 current_weather_data = self.get_data(current_weather_url)
+                print(current_weather_data)
                 if current_weather_data:
                     self.display_current_weather(current_weather_data, city_name)
                 else:
                     self.popupmsg("Error", "Weather data not available.")
             else:
-                self.popupmsg("Error", "Geocode data not available.")
+                self.popupmsg("Error", 'Geocode data not available/invalid input. Check spelling. Input structure must follow "City","State" (optional), "Country".')
         else:
             self.popupmsg("Error", "Invalid input format.")
 
@@ -327,7 +334,7 @@ class WeatherApp:
                 else:
                     self.popupmsg("Error", "Forecast data not available.")
             else:
-                self.popupmsg("Error", "Geocode data not available.")
+                self.popupmsg("Error", 'Geocode data not available/invalid input. Check spelling. Input structure must follow "City","State" (optional), "Country".')
         else:
             self.popupmsg("Error", "Invalid input format.")
     
@@ -351,7 +358,10 @@ class WeatherApp:
 
     def display_current_weather(self, data, city_name):
         window = tk.Toplevel()
-        window.title(f"Current Weather in {city_name}")
+        window.title(f"Current Weather in {city_name}, {data['sys']['country']}")
+
+        advisory_label = ttk.Label(window, text="Note: Check window title. If it is not the correct location, please specify your search further.", font=("Arial", 10))
+        advisory_label.pack()
 
         weather_condition = data["weather"][0]["main"]  # Ensure lowercase for matching
 
@@ -414,17 +424,17 @@ class WeatherApp:
         humidity_data_entry.pack()
 
         if self.temperature_unit.get() == "imperial":
-            wind_speed_label = ttk.Label(window, text="Wind Speed:", font=("Arial", 12, "bold"), justify="center")
+            wind_speed_label = ttk.Label(window, text="Wind Speed & Direction:", font=("Arial", 12, "bold"), justify="center")
             wind_speed_label.pack()
-            wind_speed_data_text = f"{data['wind']['speed']} mph"
+            wind_speed_data_text = f"{data['wind']['speed']} mph {self.get_cardinal_direction(data['wind']['speed'])}"
             wind_speed_data_entry = ttk.Entry(window, width=len(wind_speed_data_text) + 10, font=("Arial", 10), justify="center")
             wind_speed_data_entry.insert(0, wind_speed_data_text)
             wind_speed_data_entry.config(state="readonly")
             wind_speed_data_entry.pack()
         else:
-            wind_speed_label = ttk.Label(window, text="Wind Speed:", font=("Arial", 12, "bold"), justify="center")
+            wind_speed_label = ttk.Label(window, text="Wind Speed & Direction:", font=("Arial", 12, "bold"), justify="center")
             wind_speed_label.pack()
-            wind_speed_data_text = f"{data['wind']['speed']} m/s"
+            wind_speed_data_text = f"{data['wind']['speed']} m/s {self.get_cardinal_direction(data['wind']['speed'])}"
             wind_speed_data_entry = ttk.Entry(window, width=len(wind_speed_data_text) + 10, font=("Arial", 10), justify="center")
             wind_speed_data_entry.insert(0, wind_speed_data_text)
             wind_speed_data_entry.config(state="readonly")
@@ -475,9 +485,12 @@ class WeatherApp:
                
     def display_5_day_forecast(self, data, city_name):
         window = tk.Toplevel()
-        window.title(f"5-Day Weather Forecast in {city_name}")
+        window.title(f"5-Day Weather Forecast in {city_name}, {data['city']['country']}")
     
         forecast_data = {}
+
+        advisory_label = ttk.Label(window, text="Note: Check window title. If it is not the correct location, please specify your search further.", font=("Arial", 10))
+        advisory_label.pack()
     
         for forecast in data["list"][1:]:
             forecast_date = datetime.fromtimestamp(forecast["dt"]).strftime("%Y-%m-%d")
