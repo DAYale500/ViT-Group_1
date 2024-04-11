@@ -91,11 +91,11 @@ class WeatherApp:
         self.style.map('.', foreground=[('disabled', 'gray')])  # Set disabled widget color to gray
 
         # Customize specific widget elements for dark blue theme
-        self.style.configure('TButton', foreground='black', background='light blue', font=('Arial', 12, 'bold'))
+        self.style.configure('TButton', foreground='black', background='light blue', font=('Arial', 14, 'bold'))
         self.style.map('TButton', foreground=[('active', 'orange')])  # Set active button color to orange
-        self.style.configure('TLabel', foreground='black', background='light blue', font=('Arial', 12, 'bold'))
-        self.style.configure('TEntry', foreground='black', background='light blue', font=('Arial', 10))
-        self.style.configure('TRadiobutton', foreground='black', background='light blue', font=('Arial', 10))
+        self.style.configure('TLabel', foreground='black', background='light blue', font=('Arial', 14, 'bold'))
+        self.style.configure('TEntry', foreground='black', background='light blue', font=('Arial', 14))
+        self.style.configure('TRadiobutton', foreground='black', background='light blue', font=('Arial', 14))
 
         # Display the quote of the day and international holiday in the GUI
         self.display_quote()
@@ -134,9 +134,9 @@ class WeatherApp:
 
     def display_quote(self):
         # Display the quote of the day and international holiday in the GUI
-        quote_label = ttk.Label(self.window, text="A Quote to Live By", font=("Arial", 12, "bold"), justify="center")
+        quote_label = ttk.Label(self.window, text="🙏🧘A Quote to Live By🧘🙏", font=("Arial", 14, "bold"), justify="center")
         quote_label.pack()
-        quote_entry = ttk.Entry(self.window, width=len(self.quote_of_the_day)+10, font=("Arial", 10), justify="center")
+        quote_entry = ttk.Entry(self.window, width=len(self.quote_of_the_day), font=("Arial", 12), justify="center")
         quote_entry.insert(0, self.quote_of_the_day)
         quote_entry.config(state="readonly")
         quote_entry.pack()
@@ -543,10 +543,10 @@ class WeatherApp:
         B1.pack()
 
     def init_page(self):
-        label = ttk.Label(self.window, text="Enter Location:", font=("Arial", 12, "bold"), justify="center")
+        label = ttk.Label(self.window, text="🗺️Enter Location:🗺️", font=("Arial", 14, "bold"), justify="center")
         label.pack()
 
-        location_entry = ttk.Entry(self.window, textvariable=self.location_var, font=("Arial", 12), justify="center")
+        location_entry = ttk.Entry(self.window, textvariable=self.location_var, font=("Arial", 14), justify="center")
         location_entry.pack()
 
         unit_frame = ttk.Frame(self.window)
@@ -558,18 +558,18 @@ class WeatherApp:
         imperial_radio = ttk.Radiobutton(unit_frame, text="Imperial (°F)", variable=self.temperature_unit, value="imperial")
         imperial_radio.grid(row=0, column=2)
 
-        current_weather_button = ttk.Button(self.window, text="Current Weather", command=self.fetch_current_weather, style="Bold.TButton")
+        current_weather_button = ttk.Button(self.window, text="🚨Current Weather🚨", command=self.fetch_current_weather, style="Bold.TButton")
         current_weather_button.pack()
 
-        forecast_button = ttk.Button(self.window, text="5-Day Forecast", command=self.fetch_5_day_forecast, style="Bold.TButton")
+        forecast_button = ttk.Button(self.window, text="📅5-Day Forecast📅", command=self.fetch_5_day_forecast, style="Bold.TButton")
         forecast_button.pack()
 
         # Button to display data visualization
-        display_button = ttk.Button(self.window, text="Air Quality", command=self.display_air_quality)
+        display_button = ttk.Button(self.window, text="😷Air Quality😷", command=self.display_air_quality)
         display_button.pack()
 
         # Button to fetch past 3 days weather data
-        past_3_button = ttk.Button(self.window, text="Past 3 Days Weather", command=self.display_past_3, style="Bold.TButton")
+        past_3_button = ttk.Button(self.window, text="🔄Past 3 Days Weather🔄", command=self.display_past_3, style="Bold.TButton")
         past_3_button.pack()
 
         self.window.mainloop()
